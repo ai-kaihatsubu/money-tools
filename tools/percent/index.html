@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+
+<title>パーセント計算機｜割合・割引・増減率をまとめて計算｜ツール工房</title>
+<meta name="description" content="AのB%はいくつ・AはBの何%・増減率・割引/割増・分数変換の5モードを切り替えてすぐ計算。税や割引の計算に便利な無料パーセント計算ツールです。">
+<link rel="canonical" href="https://ai-kaihatsubu.github.io/percent-calculator/">
+
+<!-- OGP -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="パーセント計算機｜割合・割引・増減率をまとめて計算｜ツール工房">
+<meta property="og:description" content="割合・増減率・割引/割増・分数変換など、パーセントに関する計算を5モードで即計算できる無料ツール。">
+<meta property="og:url" content="https://ai-kaihatsubu.github.io/percent-calculator/">
+<meta property="og:image" content="https://ai-kaihatsubu.github.io/percent-calculator/icons/icon-512.svg">
+<meta property="og:locale" content="ja_JP">
+<meta name="twitter:card" content="summary_large_image">
+
+<!-- PWA -->
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#2563eb">
+<link rel="icon" href="icons/icon-192.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icons/icon-192.svg">
+
+<!-- JSON-LD: WebApplication -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "パーセント計算機",
+  "description": "AのB%はいくつ、AはBの何%、増減率、割引/割増、分数変換の5モードを切り替えて計算できる無料のパーセント計算ツールです。",
+  "applicationCategory": "UtilitiesApplication",
+  "operatingSystem": "Any",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "JPY"
+  }
+}
+</script>
+
+<link rel="stylesheet" href="style.css">
+
+<!-- TODO: AdSense（社長がキー登録後に有効化）
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXX" crossorigin="anonymous"></script>
+-->
+</head>
+<body>
+
+<a class="skip-link" href="#main">本文へスキップ</a>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <h1 class="logo">パーセント計算機</h1>
+    <nav class="header-actions" aria-label="表示設定">
+      <button id="theme-toggle" type="button" aria-label="ダーク/ライトモード切替" aria-pressed="false">
+        <span aria-hidden="true">🌙</span>
+      </button>
+    </nav>
+  </div>
+</header>
+
+<!-- TODO: AdSense 広告枠（コンテンツ上） -->
+<div class="ad-slot ad-slot--top" data-ad-position="top" aria-hidden="true">
+  <!-- <ins class="adsbygoogle"
+       style="display:block"
+       data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
+       data-ad-slot="XXXXXXXXXX"
+       data-ad-format="auto"
+       data-full-width-responsive="true"></ins>
+  <script>(adsbygoogle = window.adsbygoogle || []).push({});</script> -->
+  <p class="ad-placeholder">広告スペース（準備中）</p>
+</div>
+
+<main id="main" class="container">
+
+  <section class="tool-section" aria-labelledby="tool-heading">
+    <h2 id="tool-heading">パーセント計算</h2>
+    <p class="lead">
+      モードを選んで数値を入力すると、結果が自動で表示されます。
+      入力値はこの端末（ブラウザ）内だけで処理され、外部に送信されることはありません。
+    </p>
+
+    <div id="tool-root">
+
+      <!-- モードタブ -->
+      <div class="mode-tabs" role="tablist" aria-label="計算モード">
+        <button type="button" class="mode-tab" role="tab" id="tab-of" aria-controls="panel-of" aria-selected="true" data-mode="of">①AのB%はいくつ</button>
+        <button type="button" class="mode-tab" role="tab" id="tab-what" aria-controls="panel-what" aria-selected="false" data-mode="what" tabindex="-1">②AはBの何%</button>
+        <button type="button" class="mode-tab" role="tab" id="tab-change" aria-controls="panel-change" aria-selected="false" data-mode="change" tabindex="-1">③増減率</button>
+        <button type="button" class="mode-tab" role="tab" id="tab-discount" aria-controls="panel-discount" aria-selected="false" data-mode="discount" tabindex="-1">④割引/割増</button>
+        <button type="button" class="mode-tab" role="tab" id="tab-fraction" aria-controls="panel-fraction" aria-selected="false" data-mode="fraction" tabindex="-1">⑤割合→分数/小数</button>
+      </div>
+
+      <!-- ①AのB%はいくつ -->
+      <div class="mode-panel is-active" id="panel-of" role="tabpanel" aria-labelledby="tab-of">
+        <div class="form-grid form-grid--2col">
+          <div class="form-row">
+            <label for="of-a">A（基準となる数値）</label>
+            <input type="number" id="of-a" inputmode="decimal" step="any" placeholder="例: 1500" value="1500">
+          </div>
+          <div class="form-connector" aria-hidden="true">の</div>
+          <div class="form-row">
+            <label for="of-b">B（パーセント, %）</label>
+            <input type="number" id="of-b" inputmode="decimal" step="any" placeholder="例: 20" value="20">
+          </div>
+        </div>
+        <div class="result-box">
+          <div class="result-headline">
+            <p class="result-headline__label">結果</p>
+            <p class="result-headline__value"><span id="of-result">300</span></p>
+          </div>
+          <p class="result-sub" id="of-explain"></p>
+          <div class="copy-row">
+            <button type="button" class="btn btn-secondary copy-btn" data-target="of-result">結果をコピー</button>
+          </div>
+        </div>
+        <div class="example-box">
+          <strong>使用例:</strong> 1500円の商品の20%は何円？ → A=1500, B=20 → 結果 300
+        </div>
+      </div>
+
+      <!-- ②AはBの何% -->
+      <div class="mode-panel" id="panel-what" role="tabpanel" aria-labelledby="tab-what" hidden>
+        <div class="form-grid form-grid--2col">
+          <div class="form-row">
+            <label for="what-a">A（比較する数値）</label>
+            <input type="number" id="what-a" inputmode="decimal" step="any" placeholder="例: 80" value="80">
+          </div>
+          <div class="form-connector" aria-hidden="true">は</div>
+          <div class="form-row">
+            <label for="what-b">B（基準となる数値）</label>
+            <input type="number" id="what-b" inputmode="decimal" step="any" placeholder="例: 200" value="200">
+          </div>
+        </div>
+        <div class="result-box">
+          <div class="result-headline">
+            <p class="result-headline__label">結果</p>
+            <p class="result-headline__value"><span id="what-result">40</span><span>%</span></p>
+          </div>
+          <p class="result-sub" id="what-explain"></p>
+          <div class="copy-row">
+            <button type="button" class="btn btn-secondary copy-btn" data-target="what-result">結果をコピー</button>
+          </div>
+        </div>
+        <div class="example-box">
+          <strong>使用例:</strong> 80は200の何%？ → A=80, B=200 → 結果 40%
+        </div>
+      </div>
+
+      <!-- ③増減率 -->
+      <div class="mode-panel" id="panel-change" role="tabpanel" aria-labelledby="tab-change" hidden>
+        <div class="form-grid form-grid--2col">
+          <div class="form-row">
+            <label for="change-a">A（変化前の値）</label>
+            <input type="number" id="change-a" inputmode="decimal" step="any" placeholder="例: 100" value="100">
+          </div>
+          <div class="form-connector" aria-hidden="true">→</div>
+          <div class="form-row">
+            <label for="change-b">B（変化後の値）</label>
+            <input type="number" id="change-b" inputmode="decimal" step="any" placeholder="例: 120" value="120">
+          </div>
+        </div>
+        <div class="result-box">
+          <div class="result-headline">
+            <p class="result-headline__label">増減率</p>
+            <p class="result-headline__value"><span id="change-result">+20</span><span>%</span></p>
+          </div>
+          <p class="result-sub" id="change-explain"></p>
+          <div class="copy-row">
+            <button type="button" class="btn btn-secondary copy-btn" data-target="change-result">結果をコピー</button>
+          </div>
+        </div>
+        <div class="example-box">
+          <strong>使用例:</strong> 100から120に増えた場合の増減率は？ → A=100, B=120 → 結果 +20%（減少の場合は -表示）
+        </div>
+      </div>
+
+      <!-- ④割引/割増 -->
+      <div class="mode-panel" id="panel-discount" role="tabpanel" aria-labelledby="tab-discount" hidden>
+        <div class="form-grid form-grid--2col">
+          <div class="form-row">
+            <label for="discount-a">A（元の金額）</label>
+            <input type="number" id="discount-a" inputmode="decimal" step="any" placeholder="例: 1000" value="1000">
+          </div>
+          <div class="form-connector" aria-hidden="true">の</div>
+          <div class="form-row">
+            <label for="discount-b">B（パーセント, %）</label>
+            <input type="number" id="discount-b" inputmode="decimal" step="any" placeholder="例: 20" value="20">
+          </div>
+        </div>
+        <fieldset class="option-group">
+          <legend class="visually-hidden">割引/割増の種類</legend>
+          <div class="radio-list" role="radiogroup" aria-label="割引/割増の種類">
+            <label>
+              <input type="radio" name="discount-mode" id="discount-off" value="off" checked>
+              B%引き（割引）
+            </label>
+            <label>
+              <input type="radio" name="discount-mode" id="discount-on" value="on">
+              B%増し（割増）
+            </label>
+          </div>
+        </fieldset>
+        <div class="result-box">
+          <div class="result-headline">
+            <p class="result-headline__label">結果</p>
+            <p class="result-headline__value"><span>¥</span><span id="discount-result">800</span></p>
+          </div>
+          <p class="result-sub" id="discount-explain"></p>
+          <div class="copy-row">
+            <button type="button" class="btn btn-secondary copy-btn" data-target="discount-result">結果をコピー</button>
+          </div>
+        </div>
+        <div class="example-box">
+          <strong>使用例:</strong> 1000円の商品が20%引きの場合 → A=1000, B=20, 「B%引き」 → 結果 800円（税の計算にも使えます）
+        </div>
+      </div>
+
+      <!-- ⑤割合→分数/小数 -->
+      <div class="mode-panel" id="panel-fraction" role="tabpanel" aria-labelledby="tab-fraction" hidden>
+        <div class="form-grid">
+          <div class="form-row">
+            <label for="fraction-input">パーセント（%）</label>
+            <input type="number" id="fraction-input" inputmode="decimal" step="any" placeholder="例: 37.5" value="37.5">
+          </div>
+        </div>
+        <div class="result-box">
+          <div class="result-headline">
+            <p class="result-headline__label">小数</p>
+            <p class="result-headline__value"><span id="fraction-decimal">0.375</span></p>
+          </div>
+          <p class="result-sub">分数: <strong id="fraction-fraction">3/8</strong></p>
+          <div class="copy-row">
+            <button type="button" class="btn btn-secondary copy-btn" data-target="fraction-decimal">小数をコピー</button>
+            <button type="button" class="btn btn-secondary copy-btn" data-target="fraction-fraction">分数をコピー</button>
+          </div>
+        </div>
+        <div class="example-box">
+          <strong>使用例:</strong> 37.5%を小数・分数に変換 → 小数 0.375 / 分数 3/8
+        </div>
+      </div>
+
+      <p id="status-text" class="status-text visually-hidden" role="status" aria-live="polite"></p>
+      <p id="copy-status" class="status-text" role="status" aria-live="polite"></p>
+
+    </div>
+  </section>
+
+  <!-- 使い方 -->
+  <section class="tool-section" aria-labelledby="howto-heading">
+    <h2 id="howto-heading">使い方</h2>
+    <ol>
+      <li>上部のタブから計算したいモードを選びます。</li>
+      <li>①「AのB%はいくつ」: 基準の数値Aと割合Bを入力すると、AのB%にあたる値を計算します（例: セール価格の何%引き分の金額など）。</li>
+      <li>②「AはBの何%」: 2つの数値の比率をパーセントで計算します（例: テストの得点率など）。</li>
+      <li>③「増減率」: 変化前の値Aと変化後の値Bから、増減率を計算します（増加は+、減少は-で表示）。</li>
+      <li>④「割引/割増」: 元の金額からB%引き・B%増しの金額を計算します（税込価格や割引後価格の計算に便利）。</li>
+      <li>⑤「割合→分数/小数」: パーセントを小数や分数に変換します。</li>
+      <li>各結果の「コピー」ボタンで、結果をテキストとしてコピーできます。</li>
+    </ol>
+    <p>
+      入力された数値は、この端末（ブラウザ）内だけで計算に使用され、外部のサーバーへ送信されることはありません。
+    </p>
+  </section>
+
+  <!-- FAQ -->
+  <section class="tool-section" aria-labelledby="faq-heading">
+    <h2 id="faq-heading">よくある質問</h2>
+
+    <h3>1500円の20%はいくらですか？</h3>
+    <p>
+      「①AのB%はいくつ」モードでA=1500, B=20と入力すると、1500 × 0.20 = 300 が表示されます。
+    </p>
+
+    <h3>80は200の何%ですか？</h3>
+    <p>
+      「②AはBの何%」モードでA=80, B=200と入力すると、80 ÷ 200 × 100 = 40% が表示されます。
+    </p>
+
+    <h3>1000円の商品が20%引きになると、いくらになりますか？</h3>
+    <p>
+      「④割引/割増」モードでA=1000, B=20、「B%引き」を選ぶと、1000 × (1 − 0.20) = 800円 が表示されます。
+      消費税の計算（B%増し）にも同じモードを利用できます。
+    </p>
+
+    <h3>増減率はどのように計算されますか？</h3>
+    <p>
+      「③増減率」モードでは、(B − A) ÷ A × 100 で計算します。例えば100から120に増えた場合は
+      (120 − 100) ÷ 100 × 100 = +20% となります。減少した場合は -（マイナス）で表示されます。
+      A（変化前の値）が0の場合は計算できないため、エラー表示となります。
+    </p>
+
+    <h3>入力した数値は保存・送信されますか？</h3>
+    <p>
+      いいえ。本ツールは入力された数値を外部に送信しません。すべての計算はこの端末（ブラウザ）内で行われます。
+      画面表示用の設定（ダーク/ライト表示等）のみ、ブラウザのlocalStorageに保存される場合があります。
+    </p>
+  </section>
+
+  <!-- TODO: アフィリエイト枠 -->
+  <aside class="affiliate-box" aria-labelledby="affiliate-heading">
+    <h2 id="affiliate-heading">おすすめ</h2>
+    <p class="pr-label">[PR]</p>
+    <ul class="affiliate-list" id="affiliate-list">
+      <!-- monetization.js で動的に生成、またはここに直接記述 -->
+    </ul>
+  </aside>
+
+  <!-- Pro案内 -->
+  <section class="pro-box" aria-labelledby="pro-heading">
+    <h2 id="pro-heading">Proプラン</h2>
+    <p>
+      買い切り¥480で、広告非表示・計算履歴の保存・複数の計算結果を並べて比較する機能などが利用できる予定です（準備中）。
+    </p>
+    <button id="pro-button" type="button" class="btn btn-primary">Proを購入（準備中）</button>
+    <p class="dev-only">
+      <button id="dev-pro-toggle" type="button" class="btn btn-secondary">Proフラグを切替（開発用）</button>
+    </p>
+  </section>
+
+</main>
+
+<!-- TODO: AdSense 広告枠（コンテンツ下） -->
+<div class="ad-slot ad-slot--bottom" data-ad-position="bottom" aria-hidden="true">
+  <!-- <ins class="adsbygoogle"
+       style="display:block"
+       data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
+       data-ad-slot="XXXXXXXXXX"
+       data-ad-format="auto"
+       data-full-width-responsive="true"></ins>
+  <script>(adsbygoogle = window.adsbygoogle || []).push({});</script> -->
+  <p class="ad-placeholder">広告スペース（準備中）</p>
+</div>
+
+<footer class="site-footer">
+  <div class="container footer-inner">
+    <nav aria-label="フッターリンク">
+      <a href="privacy.html">プライバシーポリシー</a>
+      <a href="terms.html">利用規約</a>
+      <a href="operator.html">運営者情報</a>
+    </nav>
+    <p class="copyright">&copy; 2026 ツール工房</p>
+  </div>
+</footer>
+
+<script src="monetization.js" defer></script>
+<script src="app.js" defer></script>
+<script>
+  // PWA: Service Worker 登録（相対パスなのでサブパス公開でも scope が正しく効く）
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", function () {
+      navigator.serviceWorker.register("sw.js").catch(function () {});
+    });
+  }
+</script>
+</body>
+</html>

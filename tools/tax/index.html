@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+
+<title>消費税計算機｜税込・税抜を相互に一瞬で計算｜ツール工房</title>
+<meta name="description" content="金額を入力するだけで消費税の税込・税抜価格を相互に自動計算。8%（軽減税率）・10%・任意税率に対応し、複数明細の合計も計算できる無料の消費税計算ツールです。">
+<link rel="canonical" href="https://ai-kaihatsubu.github.io/tax-calculator/">
+
+<!-- OGP -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="消費税計算機｜税込・税抜を相互に一瞬で計算｜ツール工房">
+<meta property="og:description" content="税込・税抜価格の相互計算、8%/10%/任意税率、複数明細の合計に対応した無料の消費税計算ツール。">
+<meta property="og:url" content="https://ai-kaihatsubu.github.io/tax-calculator/">
+<meta property="og:image" content="https://ai-kaihatsubu.github.io/tax-calculator/icons/icon-512.svg">
+<meta property="og:locale" content="ja_JP">
+<meta name="twitter:card" content="summary_large_image">
+
+<!-- PWA -->
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#0071e3">
+<link rel="icon" href="icons/icon-192.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icons/icon-192.svg">
+
+<!-- JSON-LD: WebApplication -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "消費税計算機",
+  "description": "金額を入力するだけで消費税の税込・税抜価格を相互に自動計算できる無料ツール。8%（軽減税率）・10%・任意税率、内税/外税、複数明細の合計に対応します。",
+  "applicationCategory": "UtilitiesApplication",
+  "operatingSystem": "Any",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "JPY"
+  }
+}
+</script>
+
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<a class="skip-link" href="#main">本文へスキップ</a>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <h1 class="logo">消費税計算機</h1>
+    <nav class="header-actions" aria-label="表示設定">
+      <button id="theme-toggle" type="button" aria-label="ダーク/ライトモード切替" aria-pressed="false">
+        <span aria-hidden="true">🌙</span>
+      </button>
+    </nav>
+  </div>
+</header>
+
+<!-- AdSense 広告枠（コンテンツ上） -->
+<div class="ad-slot ad-slot--top" data-ad-position="top" aria-hidden="true">
+  <ins class="adsbygoogle"
+       style="display:block"
+       data-ad-client="ca-pub-6568622993777242"
+       data-ad-slot="1011000001"
+       data-ad-format="auto"
+       data-full-width-responsive="true"></ins>
+  <p class="ad-placeholder">広告スペース（準備中）</p>
+</div>
+
+<main id="main" class="container">
+
+  <section class="tool-section" aria-labelledby="tool-heading">
+    <h2 id="tool-heading">消費税計算</h2>
+    <p class="lead">
+      モードを選んで金額を入力すると、税込・税抜価格が自動で計算されます。
+      入力値はこの端末（ブラウザ）内だけで処理され、外部に送信されることはありません。
+    </p>
+
+    <div id="tool-root">
+
+      <!-- モードタブ -->
+      <div class="mode-tabs" role="tablist" aria-label="計算モード">
+        <button type="button" class="mode-tab" role="tab" id="tab-single" aria-controls="panel-single" aria-selected="true" data-mode="single">①税込・税抜計算</button>
+        <button type="button" class="mode-tab" role="tab" id="tab-multi" aria-controls="panel-multi" aria-selected="false" data-mode="multi" tabindex="-1">②複数明細の合計</button>
+      </div>
+
+      <!-- ①税込・税抜計算 -->
+      <div class="mode-panel is-active" id="panel-single" role="tabpanel" aria-labelledby="tab-single">
+
+        <fieldset class="option-group">
+          <legend class="visually-hidden">税率</legend>
+          <div class="radio-list" role="radiogroup" aria-label="税率の選択">
+            <label><input type="radio" name="tax-rate" id="rate-10" value="10" checked> 10%（標準税率）</label>
+            <label><input type="radio" name="tax-rate" id="rate-8" value="8"> 8%（軽減税率）</label>
+            <label><input type="radio" name="tax-rate" id="rate-custom" value="custom"> 任意税率</label>
+          </div>
+          <div class="custom-rate-row">
+            <label for="custom-rate-input" class="visually-hidden">任意税率（%）</label>
+            <input type="number" id="custom-rate-input" inputmode="decimal" step="any" min="0" placeholder="例: 5" disabled>
+            <span aria-hidden="true">%</span>
+          </div>
+        </fieldset>
+
+        <fieldset class="option-group">
+          <legend class="visually-hidden">入力金額の種類</legend>
+          <div class="radio-list" role="radiogroup" aria-label="入力金額が税込か税抜か">
+            <label><input type="radio" name="amount-type" id="amount-excl" value="excl" checked> 税抜金額を入力（外税）</label>
+            <label><input type="radio" name="amount-type" id="amount-incl" value="incl"> 税込金額を入力（内税）</label>
+          </div>
+        </fieldset>
+
+        <div class="form-grid">
+          <div class="form-row">
+            <label for="single-amount">金額（円）</label>
+            <input type="number" id="single-amount" inputmode="decimal" step="any" min="0" placeholder="例: 1000" value="1000">
+          </div>
+        </div>
+
+        <div class="result-box">
+          <div class="result-grid">
+            <div class="result-card">
+              <p class="result-card__label">税抜価格</p>
+              <p class="result-card__value"><span id="single-excl">1000</span><span>円</span></p>
+            </div>
+            <div class="result-card">
+              <p class="result-card__label">消費税額</p>
+              <p class="result-card__value"><span id="single-tax">100</span><span>円</span></p>
+            </div>
+            <div class="result-card">
+              <p class="result-card__label">税込価格</p>
+              <p class="result-card__value"><span id="single-incl">1100</span><span>円</span></p>
+            </div>
+          </div>
+          <p class="result-sub" id="single-explain"></p>
+          <div class="copy-row">
+            <button type="button" class="btn btn-secondary copy-btn" data-target="single-excl">税抜をコピー</button>
+            <button type="button" class="btn btn-secondary copy-btn" data-target="single-tax">税額をコピー</button>
+            <button type="button" class="btn btn-secondary copy-btn" data-target="single-incl">税込をコピー</button>
+          </div>
+        </div>
+
+        <div class="example-box">
+          <strong>検算例:</strong> 1000円（税抜・税率10%）→ 消費税額 100円 → 税込価格 1100円。
+          逆に1100円（税込・税率10%）→ 税抜価格 1000円 → 消費税額 100円。
+        </div>
+      </div>
+
+      <!-- ②複数明細の合計 -->
+      <div class="mode-panel" id="panel-multi" role="tabpanel" aria-labelledby="tab-multi" hidden>
+        <p class="form-help">
+          明細ごとに金額と税率を指定して合計できます。金額の種類（税込/税抜）は①と共通です。
+        </p>
+
+        <div class="line-items" id="line-items">
+          <!-- JSで明細行を生成 -->
+        </div>
+
+        <div class="line-items-actions">
+          <button type="button" id="add-line" class="btn btn-secondary">明細を追加</button>
+          <button type="button" id="reset-lines" class="btn btn-secondary">リセット</button>
+        </div>
+
+        <div class="result-box">
+          <div class="result-grid">
+            <div class="result-card">
+              <p class="result-card__label">税抜合計</p>
+              <p class="result-card__value"><span id="multi-excl">0</span><span>円</span></p>
+            </div>
+            <div class="result-card">
+              <p class="result-card__label">消費税合計</p>
+              <p class="result-card__value"><span id="multi-tax">0</span><span>円</span></p>
+            </div>
+            <div class="result-card">
+              <p class="result-card__label">税込合計</p>
+              <p class="result-card__value"><span id="multi-incl">0</span><span>円</span></p>
+            </div>
+          </div>
+          <p class="result-sub" id="multi-explain"></p>
+          <div class="copy-row">
+            <button type="button" class="btn btn-secondary copy-btn" data-target="multi-incl">税込合計をコピー</button>
+          </div>
+        </div>
+
+        <div class="example-box">
+          <strong>使用例:</strong> 10%対象 1,000円と8%対象 500円の明細を合計すると、
+          税抜合計 1,500円・消費税合計 140円・税込合計 1,640円 と計算されます。
+        </div>
+      </div>
+
+      <p id="copy-status" class="status-text" role="status" aria-live="polite"></p>
+
+    </div>
+  </section>
+
+  <!-- 使い方 -->
+  <section class="tool-section" aria-labelledby="howto-heading">
+    <h2 id="howto-heading">使い方</h2>
+    <ol>
+      <li>上部のタブから「①税込・税抜計算」または「②複数明細の合計」を選びます。</li>
+      <li>①では、税率（10%標準・8%軽減・任意）と、入力する金額が税抜（外税）か税込（内税）かを選び、金額を入力します。税抜価格・消費税額・税込価格が同時に表示されます。</li>
+      <li>②では、明細ごとに金額と税率を指定し、「明細を追加」で行を増やせます。すべての明細の税抜合計・消費税合計・税込合計が自動で計算されます。</li>
+      <li>各結果の「コピー」ボタンで、結果をテキストとしてコピーできます。</li>
+    </ol>
+    <p>
+      入力された金額は、この端末（ブラウザ）内だけで計算に使用され、外部のサーバーへ送信されることはありません。
+    </p>
+  </section>
+
+  <!-- FAQ -->
+  <section class="tool-section" aria-labelledby="faq-heading">
+    <h2 id="faq-heading">よくある質問</h2>
+
+    <h3>1000円（税抜）の消費税はいくらですか？</h3>
+    <p>
+      税率10%の場合、消費税額は1000円 × 10% = 100円、税込価格は1000円 + 100円 = 1100円です。
+      「①税込・税抜計算」で税率10%・「税抜金額を入力」を選び、1000を入力すると同じ結果が表示されます。
+    </p>
+
+    <h3>税込1100円の商品の税抜価格はいくらですか？</h3>
+    <p>
+      税率10%の場合、税抜価格 = 税込価格 ÷ 1.10 = 1000円、消費税額は1100円 − 1000円 = 100円です。
+      「①税込・税抜計算」で「税込金額を入力」を選び、1100を入力すると同じ結果が表示されます。
+    </p>
+
+    <h3>8%の軽減税率はどのような場合に適用されますか？</h3>
+    <p>
+      飲食料品（酒類・外食を除く）や定期購読の新聞など、一部の品目には8%の軽減税率が適用されます。
+      本ツールでは「8%（軽減税率）」を選択することで、軽減税率の計算ができます。
+      実際にどの品目が軽減税率の対象になるかは、最新の税制・国税庁の案内をご確認ください。
+    </p>
+
+    <h3>税率が今後変わった場合はどうすればいいですか？</h3>
+    <p>
+      「任意税率」を選択すると、10%・8%以外の税率（将来の税制変更や特殊なケース）でも計算できます。
+    </p>
+
+    <h3>複数の商品の合計金額に対する消費税はどう計算しますか？</h3>
+    <p>
+      「②複数明細の合計」モードで、商品ごとに金額と税率を入力すると、明細ごとの消費税を計算した上で
+      税抜合計・消費税合計・税込合計を表示します。税率の異なる商品が混在する場合の合計計算に便利です。
+    </p>
+
+    <h3>入力した金額は保存・送信されますか？</h3>
+    <p>
+      いいえ。本ツールは入力された金額を外部に送信しません。すべての計算はこの端末（ブラウザ）内で行われます。
+      画面表示用の設定（ダーク/ライト表示等）のみ、ブラウザのlocalStorageに保存される場合があります。
+    </p>
+  </section>
+
+  <!-- アフィリエイト枠 -->
+  <aside class="affiliate-box" aria-labelledby="affiliate-heading">
+    <h2 id="affiliate-heading">おすすめ</h2>
+    <p class="pr-label">[PR]</p>
+    <ul class="affiliate-list" id="affiliate-list">
+      <!-- monetization.js で動的に生成 -->
+    </ul>
+  </aside>
+
+  <!-- Pro案内 -->
+  <section class="pro-box" aria-labelledby="pro-heading">
+    <h2 id="pro-heading">Proプラン</h2>
+    <p>
+      買い切り¥480で、広告非表示・明細の保存・CSV出力などの機能が利用できる予定です（準備中）。
+    </p>
+    <button id="pro-button" type="button" class="btn btn-primary">Proを購入（準備中）</button>
+    <p class="dev-only">
+      <button id="dev-pro-toggle" type="button" class="btn btn-secondary">Proフラグを切替（開発用）</button>
+    </p>
+  </section>
+
+</main>
+
+<!-- AdSense 広告枠（コンテンツ下） -->
+<div class="ad-slot ad-slot--bottom" data-ad-position="bottom" aria-hidden="true">
+  <ins class="adsbygoogle"
+       style="display:block"
+       data-ad-client="ca-pub-6568622993777242"
+       data-ad-slot="1011000002"
+       data-ad-format="auto"
+       data-full-width-responsive="true"></ins>
+  <p class="ad-placeholder">広告スペース（準備中）</p>
+</div>
+
+<footer class="site-footer">
+  <div class="container footer-inner">
+    <nav aria-label="フッターリンク">
+      <a href="privacy.html">プライバシーポリシー</a>
+      <a href="terms.html">利用規約</a>
+      <a href="operator.html">運営者情報</a>
+    </nav>
+    <p class="copyright">&copy; 2026 ツール工房</p>
+  </div>
+</footer>
+
+<script src="monetization.js" defer></script>
+<script src="app.js" defer></script>
+<script>
+  // PWA: Service Worker 登録（相対パスなのでサブパス公開でも scope が正しく効く）
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", function () {
+      navigator.serviceWorker.register("sw.js").catch(function () {});
+    });
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>プライバシーポリシー｜為替・通貨換算ツール</title>
+<meta name="description" content="為替・通貨換算ツールのプライバシーポリシー。入力した金額は端末内処理のみで外部送信・保存しません。為替レート取得のためfrankfurter.app(ECB)へ通信します。">
+<link rel="canonical" href="https://ai-kaihatsubu.github.io/money-tools/privacy.html">
+<link rel="stylesheet" href="style.css">
+</head>
+<body class="legal-page">
+<header class="site-header">
+  <div class="container header-inner">
+    <h1 class="logo"><a href="index.html" style="color:inherit;text-decoration:none;">為替・通貨換算ツール</a></h1>
+  </div>
+</header>
+<main class="container">
+  <h1>プライバシーポリシー</h1>
+  <p>最終更新日: 2026-06-15</p>
+
+  <h2>1. 入力データの取り扱い</h2>
+  <p>
+    本ツールは、入力された金額・通貨の選択を、すべてお使いの端末（ブラウザ）内の
+    JavaScriptのみで計算します。
+    これらの入力データは運営者のサーバーへ送信されることはなく、保存もされません。
+    ページを再読み込み、または閉じることで入力内容（金額）は消去されます。
+  </p>
+
+  <h2>2. 外部API（為替レート取得）との通信について</h2>
+  <p>
+    本ツールは、最新の為替レートを取得するために、外部API「frankfurter.app」
+    （欧州中央銀行＝ECBのデータを提供する無料API）へ通信します。
+    この通信では「どの通貨を基準にレートを取得するか」という情報のみを送信し、
+    入力した金額や氏名・メールアドレス等の個人を特定できる情報は一切送信されません。
+  </p>
+
+  <h2>3. 保存される情報</h2>
+  <p>
+    本ツールがブラウザのlocalStorage（端末内のみ）に保存するのは、以下の情報のみです。
+  </p>
+  <ul>
+    <li>ダーク/ライト表示設定、Pro擬似フラグなどの表示設定情報</li>
+    <li>直前に選択した通貨ペア（変換元・変換先の通貨コード）</li>
+    <li>オフライン時に使用するための、最後に取得した為替レートと取得日</li>
+  </ul>
+  <p>
+    入力した金額そのものは保存されません。
+    これらの設定情報・キャッシュ情報は外部に送信されることはなく、運営者も含め第三者がアクセスすることはできません。
+  </p>
+
+  <h2>4. Cookie・広告について</h2>
+  <p>
+    本ツールでは、第三者配信の広告サービス（Google AdSense等）を利用する場合があります。
+    広告配信事業者は、ユーザーの興味に応じた広告を表示するためにCookieを使用することがあります。
+    Cookieを無効にする方法や、広告配信事業者によるCookie使用の詳細については、
+    <a href="https://policies.google.com/technologies/ads?hl=ja" rel="noopener" target="_blank">Googleの広告ポリシー</a>
+    をご確認ください。
+  </p>
+  <p>
+    なお、広告配信が有効な場合でも、本ツールで入力した金額そのものが広告配信事業者を
+    含む第三者に送信されることはありません。
+  </p>
+
+  <h2>5. アクセス解析について</h2>
+  <p>本ツールはアクセス解析ツールを使用していません。</p>
+
+  <h2>6. アフィリエイトプログラムについて</h2>
+  <p>
+    本ツールは、クレジットカードや海外送金・両替サービス等のアフィリエイトプログラムを利用し、
+    商品やサービスの紹介により収益を得ることがあります。
+    リンク先での利用・申込等によって当方に紹介料が支払われる場合があります。
+  </p>
+
+  <h2>7. 決済情報について</h2>
+  <p>
+    Proプラン等の有料機能をご利用いただく場合、決済処理はStripe社の決済システムを通じて行われます。
+    クレジットカード情報等の決済情報は運営者のサーバーを経由せず、Stripe社が直接処理します。
+    詳細は<a href="https://stripe.com/jp/privacy" rel="noopener" target="_blank">Stripeのプライバシーポリシー</a>をご確認ください。
+  </p>
+
+  <h2>8. お問い合わせ</h2>
+  <p>本ポリシーに関するお問い合わせは、<a href="operator.html">運営者情報</a>に記載の連絡先までお願いします。</p>
+</main>
+<footer class="site-footer">
+  <div class="container footer-inner">
+    <nav aria-label="フッターリンク">
+      <a href="privacy.html">プライバシーポリシー</a>
+      <a href="terms.html">利用規約</a>
+      <a href="operator.html">運営者情報</a>
+    </nav>
+    <p class="copyright">&copy; 2026 ツール工房</p>
+  </div>
+</footer>
+<script src="app.js" defer></script>
+</body>
+</html>

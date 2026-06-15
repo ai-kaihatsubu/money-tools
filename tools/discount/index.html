@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+
+<title>割引・セール価格計算機｜何%OFFもいくら引きも一瞬で計算｜ツール工房</title>
+<meta name="description" content="元値とX%OFF（または○割引）から割引後の価格・割引額を自動計算。複数割引の重ね掛けや、セール価格から割引率を逆算する機能、税込価格の計算にも対応した無料ツールです。">
+<link rel="canonical" href="https://ai-kaihatsubu.github.io/discount-calculator/">
+
+<!-- OGP -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="割引・セール価格計算機｜何%OFFもいくら引きも一瞬で計算｜ツール工房">
+<meta property="og:description" content="元値とX%OFFから割引後価格・割引額を計算、複数割引の重ね掛け、割引率の逆算、税込計算に対応した無料ツール。">
+<meta property="og:url" content="https://ai-kaihatsubu.github.io/discount-calculator/">
+<meta property="og:image" content="https://ai-kaihatsubu.github.io/discount-calculator/icons/icon-512.svg">
+<meta property="og:locale" content="ja_JP">
+<meta name="twitter:card" content="summary_large_image">
+
+<!-- PWA -->
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#0071e3">
+<link rel="icon" href="icons/icon-192.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icons/icon-192.svg">
+
+<!-- JSON-LD: WebApplication -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "割引・セール価格計算機",
+  "description": "元値とX%OFF（または○割引）から割引後の価格・割引額を自動計算できる無料ツールです。複数割引の重ね掛け、割引率の逆算、税込価格の計算に対応します。",
+  "applicationCategory": "UtilitiesApplication",
+  "operatingSystem": "Any",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "JPY"
+  }
+}
+</script>
+
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<a class="skip-link" href="#main">本文へスキップ</a>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <h1 class="logo">割引・セール価格計算機</h1>
+    <nav class="header-actions" aria-label="表示設定">
+      <button id="theme-toggle" type="button" aria-label="ダーク/ライトモード切替" aria-pressed="false">
+        <span aria-hidden="true">🌙</span>
+      </button>
+    </nav>
+  </div>
+</header>
+
+<!-- AdSense 広告枠（コンテンツ上） -->
+<div class="ad-slot ad-slot--top" data-ad-position="top" aria-hidden="true">
+  <ins class="adsbygoogle"
+       style="display:block"
+       data-ad-client="ca-pub-6568622993777242"
+       data-ad-slot="1013000001"
+       data-ad-format="auto"
+       data-full-width-responsive="true"></ins>
+  <p class="ad-placeholder">広告スペース（準備中）</p>
+</div>
+
+<main id="main" class="container">
+
+  <section class="tool-section" aria-labelledby="tool-heading">
+    <h2 id="tool-heading">割引・セール価格計算</h2>
+    <p class="lead">
+      モードを選んで金額・割引率を入力すると、結果が自動で表示されます。
+      入力値はこの端末（ブラウザ）内だけで処理され、外部に送信されることはありません。
+    </p>
+
+    <div id="tool-root">
+
+      <!-- モードタブ -->
+      <div class="mode-tabs" role="tablist" aria-label="計算モード">
+        <button type="button" class="mode-tab" role="tab" id="tab-discount" aria-controls="panel-discount" aria-selected="true" data-mode="discount">①割引後価格を計算</button>
+        <button type="button" class="mode-tab" role="tab" id="tab-reverse" aria-controls="panel-reverse" aria-selected="false" data-mode="reverse" tabindex="-1">②割引率を逆算</button>
+      </div>
+
+      <!-- ①割引後価格を計算（重ね掛け対応） -->
+      <div class="mode-panel is-active" id="panel-discount" role="tabpanel" aria-labelledby="tab-discount">
+
+        <div class="form-grid">
+          <div class="form-row">
+            <label for="discount-price">元値（円）</label>
+            <input type="number" id="discount-price" inputmode="decimal" step="any" min="0" placeholder="例: 1000" value="1000">
+          </div>
+        </div>
+
+        <p class="form-help">割引（%OFF）を追加できます。複数指定すると、上から順に重ね掛けされます。</p>
+        <div class="discount-items" id="discount-items">
+          <!-- JSで割引行を生成 -->
+        </div>
+        <div class="discount-items-actions">
+          <button type="button" id="add-discount" class="btn btn-secondary">割引を追加</button>
+          <button type="button" id="reset-discounts" class="btn btn-secondary">リセット</button>
+        </div>
+
+        <fieldset class="option-group">
+          <legend class="visually-hidden">税込表示</legend>
+          <div class="radio-list" role="group" aria-label="税込価格を表示するか">
+            <label><input type="checkbox" id="discount-with-tax"> 税込価格も表示する（税率10%）</label>
+          </div>
+          <div class="custom-rate-row" id="discount-tax-rate-row" style="display:none;">
+            <label for="discount-tax-rate" class="visually-hidden">税率（%）</label>
+            <input type="number" id="discount-tax-rate" inputmode="decimal" step="any" min="0" value="10" style="max-width:120px;">
+            <span aria-hidden="true">% の消費税で計算</span>
+          </div>
+        </fieldset>
+
+        <div class="result-box">
+          <div class="result-grid">
+            <div class="result-card">
+              <p class="result-card__label">割引後価格</p>
+              <p class="result-card__value"><span id="discount-final">1000</span><span>円</span></p>
+            </div>
+            <div class="result-card">
+              <p class="result-card__label">割引額（合計）</p>
+              <p class="result-card__value"><span id="discount-amount">0</span><span>円</span></p>
+            </div>
+            <div class="result-card" id="discount-tax-card" style="display:none;">
+              <p class="result-card__label">税込価格</p>
+              <p class="result-card__value"><span id="discount-tax-incl">0</span><span>円</span></p>
+            </div>
+          </div>
+          <p class="result-sub" id="discount-explain"></p>
+          <ul class="step-list" id="discount-steps"></ul>
+          <div class="copy-row">
+            <button type="button" class="btn btn-secondary copy-btn" data-target="discount-final">割引後価格をコピー</button>
+            <button type="button" class="btn btn-secondary copy-btn" data-target="discount-amount">割引額をコピー</button>
+          </div>
+        </div>
+
+        <div class="example-box">
+          <strong>検算例:</strong> 1000円の20%OFFは、割引額200円・割引後価格800円。
+          さらに10%OFFを重ねると、800円 × (1 − 10%) = 720円になります（単純合計の30%引きとは異なります）。
+        </div>
+      </div>
+
+      <!-- ②割引率を逆算 -->
+      <div class="mode-panel" id="panel-reverse" role="tabpanel" aria-labelledby="tab-reverse" hidden>
+        <div class="form-grid form-grid--2col">
+          <div class="form-row">
+            <label for="reverse-original">元値（円）</label>
+            <input type="number" id="reverse-original" inputmode="decimal" step="any" min="0" placeholder="例: 1000" value="1000">
+          </div>
+          <div class="form-row">
+            <label for="reverse-sale">セール価格（円）</label>
+            <input type="number" id="reverse-sale" inputmode="decimal" step="any" min="0" placeholder="例: 800" value="800">
+          </div>
+        </div>
+        <div class="result-box">
+          <div class="result-grid">
+            <div class="result-card">
+              <p class="result-card__label">割引率</p>
+              <p class="result-card__value"><span id="reverse-percent">20</span><span>%OFF</span></p>
+            </div>
+            <div class="result-card">
+              <p class="result-card__label">割引額</p>
+              <p class="result-card__value"><span id="reverse-amount">200</span><span>円</span></p>
+            </div>
+            <div class="result-card">
+              <p class="result-card__label">○割引</p>
+              <p class="result-card__value"><span id="reverse-wari">2</span><span>割</span></p>
+            </div>
+          </div>
+          <p class="result-sub" id="reverse-explain"></p>
+          <div class="copy-row">
+            <button type="button" class="btn btn-secondary copy-btn" data-target="reverse-percent">割引率をコピー</button>
+          </div>
+        </div>
+        <div class="example-box">
+          <strong>検算例:</strong> 元値1000円がセール価格800円の場合、割引額200円・割引率20%OFF（2割引）です。
+        </div>
+      </div>
+
+      <p id="copy-status" class="status-text" role="status" aria-live="polite"></p>
+
+    </div>
+  </section>
+
+  <!-- 使い方 -->
+  <section class="tool-section" aria-labelledby="howto-heading">
+    <h2 id="howto-heading">使い方</h2>
+    <ol>
+      <li>上部のタブから「①割引後価格を計算」または「②割引率を逆算」を選びます。</li>
+      <li>①では、元値を入力し、「割引を追加」で割引率（%OFF）を1つ以上指定します。複数指定すると上から順に重ね掛けされ、割引後価格・割引額・各ステップの内訳が表示されます。「税込価格も表示する」をチェックすると、指定した税率での税込価格も表示します。</li>
+      <li>②では、元値とセール価格を入力すると、何%OFFか（および何割引か）と割引額を逆算します。</li>
+      <li>各結果の「コピー」ボタンで、結果をテキストとしてコピーできます。</li>
+    </ol>
+    <p>
+      入力された金額は、この端末（ブラウザ）内だけで計算に使用され、外部のサーバーへ送信されることはありません。
+    </p>
+  </section>
+
+  <!-- FAQ -->
+  <section class="tool-section" aria-labelledby="faq-heading">
+    <h2 id="faq-heading">よくある質問</h2>
+
+    <h3>1000円の20%OFFはいくらですか？</h3>
+    <p>
+      割引額は1000円 × 20% = 200円、割引後価格は1000円 − 200円 = 800円です。
+      「①割引後価格を計算」で元値1000・割引20%を入力すると同じ結果が表示されます。
+    </p>
+
+    <h3>「2割引」と「20%OFF」は同じ意味ですか？</h3>
+    <p>
+      はい、同じ意味です。「○割引」は10%単位の表現で、「2割引」は「20%OFF」と同じです。
+      「②割引率を逆算」では、割引率（%OFF）と「○割引」の両方を表示します。
+    </p>
+
+    <h3>20%OFFと10%OFFを両方適用すると、合計30%OFFになりますか？</h3>
+    <p>
+      いいえ、異なります。割引は重ね掛け（乗算）で計算されるため、
+      1000円 → 20%OFFで800円 → さらに10%OFFで720円となり、
+      単純に合計した「30%OFF（700円）」とは異なります。
+      「①割引後価格を計算」で複数の割引を追加すると、この重ね掛けの結果と各ステップの内訳を確認できます。
+    </p>
+
+    <h3>セール価格から割引率は逆算できますか？</h3>
+    <p>
+      「②割引率を逆算」モードで、元値とセール価格を入力すると、
+      割引率（%OFF）・割引額・「○割引」表記を計算します。
+      例えば元値1000円・セール価格800円の場合、20%OFF（2割引）・割引額200円となります。
+    </p>
+
+    <h3>税込価格も計算できますか？</h3>
+    <p>
+      「①割引後価格を計算」で「税込価格も表示する」をチェックし、税率を指定すると、
+      割引後価格に対する税込価格も表示されます。デフォルトは10%ですが、
+      8%（軽減税率）や任意の税率に変更できます。
+    </p>
+
+    <h3>入力した金額は保存・送信されますか？</h3>
+    <p>
+      いいえ。本ツールは入力された金額を外部に送信しません。すべての計算はこの端末（ブラウザ）内で行われます。
+      画面表示用の設定（ダーク/ライト表示等）のみ、ブラウザのlocalStorageに保存される場合があります。
+    </p>
+  </section>
+
+  <!-- アフィリエイト枠 -->
+  <aside class="affiliate-box" aria-labelledby="affiliate-heading">
+    <h2 id="affiliate-heading">おすすめ</h2>
+    <p class="pr-label">[PR]</p>
+    <ul class="affiliate-list" id="affiliate-list">
+      <!-- monetization.js で動的に生成 -->
+    </ul>
+  </aside>
+
+  <!-- Pro案内 -->
+  <section class="pro-box" aria-labelledby="pro-heading">
+    <h2 id="pro-heading">Proプラン</h2>
+    <p>
+      買い切り¥480で、広告非表示・計算履歴の保存・複数商品の一括比較などの機能が利用できる予定です（準備中）。
+    </p>
+    <button id="pro-button" type="button" class="btn btn-primary">Proを購入（準備中）</button>
+    <p class="dev-only">
+      <button id="dev-pro-toggle" type="button" class="btn btn-secondary">Proフラグを切替（開発用）</button>
+    </p>
+  </section>
+
+</main>
+
+<!-- AdSense 広告枠（コンテンツ下） -->
+<div class="ad-slot ad-slot--bottom" data-ad-position="bottom" aria-hidden="true">
+  <ins class="adsbygoogle"
+       style="display:block"
+       data-ad-client="ca-pub-6568622993777242"
+       data-ad-slot="1013000002"
+       data-ad-format="auto"
+       data-full-width-responsive="true"></ins>
+  <p class="ad-placeholder">広告スペース（準備中）</p>
+</div>
+
+<footer class="site-footer">
+  <div class="container footer-inner">
+    <nav aria-label="フッターリンク">
+      <a href="privacy.html">プライバシーポリシー</a>
+      <a href="terms.html">利用規約</a>
+      <a href="operator.html">運営者情報</a>
+    </nav>
+    <p class="copyright">&copy; 2026 ツール工房</p>
+  </div>
+</footer>
+
+<script src="monetization.js" defer></script>
+<script src="app.js" defer></script>
+<script>
+  // PWA: Service Worker 登録（相対パスなのでサブパス公開でも scope が正しく効く）
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", function () {
+      navigator.serviceWorker.register("sw.js").catch(function () {});
+    });
+  }
+</script>
+</body>
+</html>

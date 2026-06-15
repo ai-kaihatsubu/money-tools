@@ -1,0 +1,1 @@
+window.SUITE_CONFIG = { brand: "お金の計算ツール", desc: "消費税・割引・パーセント・割り勘・為替をまとめて計算できる無料ツール", tabs: [ { label: "消費税", path: "./tools/tax/index.html" }, { label: "割引・セール", path: "./tools/discount/index.html" }, { label: "パーセント", path: "./tools/percent/index.html" }, { label: "割り勘", path: "./tools/warikan/index.html" }, { label: "為替", path: "./tools/currency/index.html" } ] };

@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+
+<title>為替・通貨換算ツール｜主要通貨をリアルタイムレートで換算｜ツール工房</title>
+<meta name="description" content="金額と通貨を選ぶだけで主要通貨間のレートを自動換算。USD/JPY/EUR等の最新レート（ECB基準）と基準日を表示し、オフライン時は最後に取得したレートを使用する無料ツールです。">
+<link rel="canonical" href="https://ai-kaihatsubu.github.io/money-tools/">
+
+<!-- OGP -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="為替・通貨換算ツール｜主要通貨をリアルタイムレートで換算｜ツール工房">
+<meta property="og:description" content="金額と通貨を選ぶだけで主要通貨間のレートを自動換算。最新レート（ECB基準）と基準日を表示する無料の通貨換算ツール。">
+<meta property="og:url" content="https://ai-kaihatsubu.github.io/money-tools/">
+<meta property="og:image" content="https://ai-kaihatsubu.github.io/money-tools/icons/icon-512.svg">
+<meta property="og:locale" content="ja_JP">
+<meta name="twitter:card" content="summary_large_image">
+
+<!-- PWA -->
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#0071e3">
+<link rel="icon" href="icons/icon-192.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icons/icon-192.svg">
+
+<!-- JSON-LD: WebApplication -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "為替・通貨換算ツール",
+  "description": "金額と通貨（JPY/USD/EUR/GBP等）を選ぶだけで、最新の為替レート（ECB基準）を使って換算できる無料ツール。レート表・基準日表示、オフライン時は最後に取得したレートを使用します。",
+  "applicationCategory": "UtilitiesApplication",
+  "operatingSystem": "Any",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "JPY"
+  }
+}
+</script>
+
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<a class="skip-link" href="#main">本文へスキップ</a>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <h1 class="logo">為替・通貨換算ツール</h1>
+    <nav class="header-actions" aria-label="表示設定">
+      <button id="theme-toggle" type="button" aria-label="ダーク/ライトモード切替" aria-pressed="false">
+        <span aria-hidden="true">🌙</span>
+      </button>
+    </nav>
+  </div>
+</header>
+
+<!-- AdSense 広告枠（コンテンツ上） -->
+<div class="ad-slot ad-slot--top" data-ad-position="top" aria-hidden="true">
+  <ins class="adsbygoogle"
+       style="display:block"
+       data-ad-client="ca-pub-6568622993777242"
+       data-ad-slot="1030000001"
+       data-ad-format="auto"
+       data-full-width-responsive="true"></ins>
+  <p class="ad-placeholder">広告スペース（準備中）</p>
+</div>
+
+<main id="main" class="container">
+
+  <section class="tool-section" aria-labelledby="tool-heading">
+    <h2 id="tool-heading">通貨換算</h2>
+    <p class="lead">
+      金額と通貨を選ぶと、最新の為替レートで自動的に換算します。
+      入力した金額はこの端末（ブラウザ）内だけで処理され、外部に送信されることはありません
+      （レート取得のためfrankfurter.app（ECB）と通信します）。
+    </p>
+
+    <div id="tool-root">
+
+      <div class="form-grid">
+        <div class="form-row">
+          <label for="amount-input">金額</label>
+          <input type="number" id="amount-input" inputmode="decimal" step="any" min="0" placeholder="例: 100" value="100">
+        </div>
+
+        <div class="currency-row">
+          <div class="form-row">
+            <label for="from-currency">変換元</label>
+            <select id="from-currency"></select>
+          </div>
+
+          <button type="button" id="swap-button" class="btn btn-secondary swap-btn" aria-label="変換元と変換先を入れ替える">
+            <span aria-hidden="true">⇄</span>
+          </button>
+
+          <div class="form-row">
+            <label for="to-currency">変換先</label>
+            <select id="to-currency"></select>
+          </div>
+        </div>
+      </div>
+
+      <p id="rate-status" class="status-text" role="status" aria-live="polite">レートを取得中です…</p>
+
+      <div class="result-box">
+        <div class="result-headline">
+          <p class="result-headline__label" id="result-label">100 USD は</p>
+          <p class="result-headline__value"><span id="result-value">-</span><span id="result-unit"> JPY</span></p>
+        </div>
+        <p class="result-sub" id="result-explain"></p>
+        <div class="copy-row">
+          <button type="button" class="btn btn-secondary copy-btn" data-target="result-value">結果をコピー</button>
+          <button type="button" id="refresh-rate" class="btn btn-secondary">レートを再取得</button>
+        </div>
+      </div>
+
+      <div class="rate-table-box">
+        <h3 id="rate-table-heading">レート表（1 <span id="rate-table-from">USD</span> = X <span id="rate-table-to-label">各通貨</span>）</h3>
+        <div class="table-wrap">
+          <table id="rate-table">
+            <thead>
+              <tr>
+                <th scope="col">通貨</th>
+                <th scope="col">レート</th>
+              </tr>
+            </thead>
+            <tbody id="rate-table-body">
+              <!-- JSで生成 -->
+            </tbody>
+          </table>
+        </div>
+        <div class="copy-row">
+          <button type="button" id="copy-rate-table" class="btn btn-secondary">レート表をコピー</button>
+        </div>
+      </div>
+
+      <p id="copy-status" class="status-text" role="status" aria-live="polite"></p>
+
+      <div class="example-box">
+        <strong>注意:</strong> レートは参考値です。実際の両替レートには手数料等が上乗せされます。
+        レートは外部API（frankfurter.app / ECB＝欧州中央銀行）から取得します。
+      </div>
+    </div>
+  </section>
+
+  <!-- 使い方 -->
+  <section class="tool-section" aria-labelledby="howto-heading">
+    <h2 id="howto-heading">使い方</h2>
+    <ol>
+      <li>「金額」に換算したい数値を入力します。</li>
+      <li>「変換元」「変換先」の通貨をそれぞれ選択します（JPY/USD/EUR/GBP/AUD/CNY/KRW/CHF/CAD/HKD/SGD等、APIが対応する主要通貨）。</li>
+      <li>最新の為替レートを使って換算結果が自動表示されます。レートの基準日（◯月◯日時点）も表示されます。</li>
+      <li>「⇄」ボタンで変換元と変換先を入れ替えられます。</li>
+      <li>「レート表」では、1単位の変換元通貨が他の通貨でいくらになるかを一覧表示します。「レート表をコピー」でテキストとしてコピーできます。</li>
+      <li>オフラインやAPIへの接続に失敗した場合は、最後に取得できたレートをこの端末に保存して使用し、その旨と取得日時を表示します。</li>
+    </ol>
+    <p>
+      入力された金額・通貨の選択は、この端末（ブラウザ）内だけで処理されます。
+      為替レートの取得のために frankfurter.app（欧州中央銀行のデータを提供する無料API）と通信しますが、
+      入力した金額や個人を特定する情報は送信されません。
+    </p>
+  </section>
+
+  <!-- FAQ -->
+  <section class="tool-section" aria-labelledby="faq-heading">
+    <h2 id="faq-heading">よくある質問</h2>
+
+    <h3>表示されるレートはどこから取得していますか？</h3>
+    <p>
+      欧州中央銀行（ECB）の公表データを提供する無料API「frankfurter.app」から取得しています。
+      APIキーは不要で、取得したレートと基準日（ECBが更新した日）を画面に表示します。
+    </p>
+
+    <h3>レートはリアルタイムですか？</h3>
+    <p>
+      ECBのレートは通常、平日の中央欧州時間16:00頃に更新される参考レートです。
+      実際の銀行・両替所のレートとは異なり、手数料も含まれていません。海外旅行や送金時の実際のレートは、
+      各金融機関・サービスの提示するレートをご確認ください。
+    </p>
+
+    <h3>オフラインの時はどうなりますか？</h3>
+    <p>
+      インターネットに接続できない場合や、APIへの通信に失敗した場合は「レートを取得できません
+      （オフラインの可能性）」と表示します。過去に取得に成功したレートがこの端末に保存されていれば、
+      そのレートと取得日を「◯月◯日時点のレート」として表示し、換算を続けられます。
+    </p>
+
+    <h3>対応している通貨は何ですか？</h3>
+    <p>
+      JPY（日本円）、USD（米ドル）、EUR（ユーロ）、GBP（英ポンド）、AUD（オーストラリアドル）、
+      CNY（中国人民元）、KRW（韓国ウォン）、CHF（スイスフラン）、CAD（カナダドル）、
+      HKD（香港ドル）、SGD（シンガポールドル）など、frankfurter.app（ECB）が対応する主要通貨です。
+    </p>
+
+    <h3>入力した金額は保存・送信されますか？</h3>
+    <p>
+      いいえ。入力した金額そのものは外部に送信・保存されません。
+      為替レートの取得のためにfrankfurter.app（ECB）と通信しますが、これは「どの通貨ペアのレートが
+      必要か」という情報のみで、金額や個人情報は含まれません。
+      画面表示用の設定（ダーク/ライト表示等）と、オフライン用の最終取得レートのみ、
+      ブラウザのlocalStorageに保存されます。
+    </p>
+  </section>
+
+  <!-- アフィリエイト枠 -->
+  <aside class="affiliate-box" aria-labelledby="affiliate-heading">
+    <h2 id="affiliate-heading">おすすめ</h2>
+    <p class="pr-label">[PR]</p>
+    <ul class="affiliate-list" id="affiliate-list">
+      <!-- monetization.js で動的に生成 -->
+    </ul>
+  </aside>
+
+  <!-- Pro案内 -->
+  <section class="pro-box" aria-labelledby="pro-heading">
+    <h2 id="pro-heading">Proプラン</h2>
+    <p>
+      買い切り¥480で、広告非表示・お気に入り通貨ペアの保存などの機能が利用できる予定です（準備中）。
+    </p>
+    <button id="pro-button" type="button" class="btn btn-primary">Proを購入（準備中）</button>
+    <p class="dev-only">
+      <button id="dev-pro-toggle" type="button" class="btn btn-secondary">Proフラグを切替（開発用）</button>
+    </p>
+  </section>
+
+</main>
+
+<!-- AdSense 広告枠（コンテンツ下） -->
+<div class="ad-slot ad-slot--bottom" data-ad-position="bottom" aria-hidden="true">
+  <ins class="adsbygoogle"
+       style="display:block"
+       data-ad-client="ca-pub-6568622993777242"
+       data-ad-slot="1030000002"
+       data-ad-format="auto"
+       data-full-width-responsive="true"></ins>
+  <p class="ad-placeholder">広告スペース（準備中）</p>
+</div>
+
+<footer class="site-footer">
+  <div class="container footer-inner">
+    <nav aria-label="フッターリンク">
+      <a href="privacy.html">プライバシーポリシー</a>
+      <a href="terms.html">利用規約</a>
+      <a href="operator.html">運営者情報</a>
+    </nav>
+    <p class="copyright">&copy; 2026 ツール工房</p>
+  </div>
+</footer>
+
+<script src="monetization.js" defer></script>
+<script src="app.js" defer></script>
+<script>
+  // PWA: Service Worker 登録（相対パスなのでサブパス公開でも scope が正しく効く）
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", function () {
+      navigator.serviceWorker.register("sw.js").catch(function () {});
+    });
+  }
+</script>
+</body>
+</html>

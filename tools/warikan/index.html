@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+
+<title>割り勘計算機｜端数処理・幹事の負担調整も対応｜ツール工房</title>
+<meta name="description" content="合計金額と人数を入力するだけで1人あたりの金額を即計算。端数の切上/切捨/四捨五入や丸め単位、幹事の金額調整に対応した無料の割り勘計算ツールです。">
+<link rel="canonical" href="https://ai-kaihatsubu.github.io/warikan-calculator/">
+
+<!-- OGP -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="割り勘計算機｜端数処理・幹事の負担調整も対応｜ツール工房">
+<meta property="og:description" content="合計金額と人数を入力するだけで1人あたりの金額を即計算。端数処理や幹事の調整にも対応した無料ツール。">
+<meta property="og:url" content="https://ai-kaihatsubu.github.io/warikan-calculator/">
+<meta property="og:image" content="https://ai-kaihatsubu.github.io/warikan-calculator/icons/icon-512.svg">
+<meta property="og:locale" content="ja_JP">
+<meta name="twitter:card" content="summary_large_image">
+
+<!-- PWA -->
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#2563eb">
+<link rel="icon" href="icons/icon-192.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icons/icon-192.svg">
+
+<!-- JSON-LD: WebApplication -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "割り勘計算機",
+  "description": "合計金額と人数を入力するだけで、1人あたりの金額や端数の配分を自動計算する無料ツールです。端数処理（切上/切捨/四捨五入）、丸め単位、幹事の金額調整に対応します。",
+  "applicationCategory": "UtilitiesApplication",
+  "operatingSystem": "Any",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "JPY"
+  }
+}
+</script>
+
+<link rel="stylesheet" href="style.css">
+
+<!-- TODO: AdSense（社長がキー登録後に有効化）
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXX" crossorigin="anonymous"></script>
+-->
+</head>
+<body>
+
+<a class="skip-link" href="#main">本文へスキップ</a>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <h1 class="logo">割り勘計算機</h1>
+    <nav class="header-actions" aria-label="表示設定">
+      <button id="theme-toggle" type="button" aria-label="ダーク/ライトモード切替" aria-pressed="false">
+        <span aria-hidden="true">🌙</span>
+      </button>
+    </nav>
+  </div>
+</header>
+
+<!-- TODO: AdSense 広告枠（コンテンツ上） -->
+<div class="ad-slot ad-slot--top" data-ad-position="top" aria-hidden="true">
+  <!-- <ins class="adsbygoogle"
+       style="display:block"
+       data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
+       data-ad-slot="XXXXXXXXXX"
+       data-ad-format="auto"
+       data-full-width-responsive="true"></ins>
+  <script>(adsbygoogle = window.adsbygoogle || []).push({});</script> -->
+  <p class="ad-placeholder">広告スペース（準備中）</p>
+</div>
+
+<main id="main" class="container">
+
+  <section class="tool-section" aria-labelledby="tool-heading">
+    <h2 id="tool-heading">割り勘を計算する</h2>
+    <p class="lead">
+      合計金額と人数を入力すると、1人あたりの金額を自動で計算します。
+      入力値はこの端末（ブラウザ）内だけで処理され、外部に送信されることはありません。
+    </p>
+
+    <div id="tool-root">
+
+      <div class="form-grid form-grid--2col">
+        <div class="form-row">
+          <label for="total-amount">合計金額（円）</label>
+          <input type="number" id="total-amount" min="0" step="1" inputmode="numeric" placeholder="例: 10000" value="10000">
+        </div>
+        <div class="form-row">
+          <label for="people-count">人数</label>
+          <input type="number" id="people-count" min="1" step="1" inputmode="numeric" placeholder="例: 3" value="3">
+        </div>
+      </div>
+
+      <fieldset class="option-group">
+        <legend>端数処理の方法（1人あたりの金額）</legend>
+        <div class="radio-list" role="radiogroup" aria-label="端数処理の方法">
+          <label>
+            <input type="radio" name="rounding-mode" id="rounding-ceil" value="ceil" checked>
+            切り上げ
+          </label>
+          <label>
+            <input type="radio" name="rounding-mode" id="rounding-floor" value="floor">
+            切り捨て
+          </label>
+          <label>
+            <input type="radio" name="rounding-mode" id="rounding-round" value="round">
+            四捨五入
+          </label>
+        </div>
+      </fieldset>
+
+      <div class="form-grid form-grid--2col">
+        <div class="form-row">
+          <label for="rounding-unit">1人あたりの丸め単位</label>
+          <select id="rounding-unit">
+            <option value="1">1円単位</option>
+            <option value="10" selected>10円単位</option>
+            <option value="100">100円単位</option>
+          </select>
+          <p class="form-help">1人あたりの金額をこの単位で丸めます。</p>
+        </div>
+        <div class="form-row">
+          <label for="diff-handling">端数（差額）の扱い</label>
+          <select id="diff-handling">
+            <option value="organizer-less" selected>幹事が多く負担する（他の人は丸めた金額）</option>
+            <option value="organizer-more">幹事が少なく済む（他の人が多めに払う）</option>
+            <option value="even">できるだけ均等に配分する</option>
+          </select>
+          <p class="form-help">丸め単位によって生じる差額を誰がどう負担するかを選びます。</p>
+        </div>
+      </div>
+
+      <fieldset class="option-group">
+        <legend>幹事の金額調整（任意）</legend>
+        <div class="organizer-row">
+          <div class="form-row">
+            <label for="organizer-adjust-mode">調整方法</label>
+            <select id="organizer-adjust-mode">
+              <option value="none" selected>調整しない</option>
+              <option value="less">幹事を安くする（−）</option>
+              <option value="more">幹事を高くする（＋）</option>
+            </select>
+          </div>
+          <div class="form-row">
+            <label for="organizer-adjust-amount">調整額（円）</label>
+            <input type="number" id="organizer-adjust-amount" min="0" step="10" inputmode="numeric" placeholder="例: 500" value="0">
+          </div>
+        </div>
+        <p class="form-help">
+          幹事だけ金額を増減させたい場合に使用します（例: 幹事は多めに払ったお礼として500円安くする等）。
+          差額は他の参加者で均等に再配分されます。
+        </p>
+      </fieldset>
+
+      <p id="status-text" class="status-text visually-hidden" role="status" aria-live="polite"></p>
+
+      <div class="result-box" id="result-box">
+        <div class="result-headline">
+          <p class="result-headline__label">1人あたり（基本額）</p>
+          <p class="result-headline__value"><span>¥</span><span id="result-per-person">3,340</span></p>
+        </div>
+
+        <table class="result-table" aria-label="参加者ごとの金額">
+          <thead>
+            <tr>
+              <th>対象</th>
+              <th class="num">人数</th>
+              <th class="num">1人あたり</th>
+              <th class="num">小計</th>
+            </tr>
+          </thead>
+          <tbody id="result-table-body">
+            <!-- JSで生成 -->
+          </tbody>
+          <tfoot>
+            <tr>
+              <th>合計</th>
+              <td class="num" id="result-total-people">3人</td>
+              <td class="num"></td>
+              <td class="num" id="result-total-collected">¥0</td>
+            </tr>
+          </tfoot>
+        </table>
+
+        <p class="result-note" id="result-diff-note"></p>
+
+        <div class="copy-row">
+          <button type="button" id="copy-result-btn" class="btn btn-secondary">結果をコピー</button>
+        </div>
+        <p id="copy-status" class="status-text" role="status" aria-live="polite"></p>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- 使い方 -->
+  <section class="tool-section" aria-labelledby="howto-heading">
+    <h2 id="howto-heading">使い方</h2>
+    <ol>
+      <li>「合計金額」と「人数」を入力します。</li>
+      <li>端数処理の方法（切り上げ／切り捨て／四捨五入）と、1人あたりの丸め単位（1円/10円/100円）を選びます。</li>
+      <li>丸めによって生じる差額（端数）をどう扱うかを選びます。「幹事が多く負担する」「幹事が少なく済む」「できるだけ均等に配分する」から選択できます。</li>
+      <li>必要であれば「幹事の金額調整」で、幹事だけ金額を増減できます。</li>
+      <li>結果が自動的に更新されます。「結果をコピー」でテキストとしてコピーできます。</li>
+    </ol>
+    <p>
+      入力された金額・人数・各種設定は、この端末（ブラウザ）内だけで計算に使用され、
+      外部のサーバーへ送信されることはありません。
+    </p>
+  </section>
+
+  <!-- FAQ -->
+  <section class="tool-section" aria-labelledby="faq-heading">
+    <h2 id="faq-heading">よくある質問</h2>
+
+    <h3>10,000円を3人で割ると、1人あたりいくらになりますか？</h3>
+    <p>
+      10,000円 ÷ 3人 ＝ 3,333.33…円です。丸め単位を10円・端数処理を「切り上げ」にすると、
+      1人あたりは3,340円になります。3人分の合計は10,020円となり、20円の差額が発生します。
+      この差額を「端数（差額）の扱い」の設定に従って、幹事や参加者で配分します。
+    </p>
+
+    <h3>端数（差額）はどう配分されますか？</h3>
+    <p>
+      「幹事が多く負担する」を選ぶと、他の参加者は丸めた1人あたりの金額を払い、
+      合計との差額（多く集まった分）は幹事が多く支払う（＝幹事の取り分が少なくなる）形で調整されます。
+      「幹事が少なく済む」を選ぶと逆に、差額分だけ幹事の負担が軽くなります。
+      「できるだけ均等に配分する」を選ぶと、1円単位の差額を参加者の間でできるだけ均等に振り分けます。
+    </p>
+
+    <h3>幹事の金額を調整するとどうなりますか？</h3>
+    <p>
+      「幹事の金額調整」で増減額を指定すると、幹事の支払額がその分増減し、
+      差額は他の参加者全員で均等に再配分されます。割り切れない場合は1円単位で配分されます。
+    </p>
+
+    <h3>支払い情報や金額は保存・送信されますか？</h3>
+    <p>
+      いいえ。本ツールは入力された金額や人数を外部に送信しません。すべての計算はこの端末（ブラウザ）内で行われます。
+      画面表示用の設定（ダーク/ライト表示等）のみ、ブラウザのlocalStorageに保存される場合があります。
+    </p>
+  </section>
+
+  <!-- TODO: アフィリエイト枠 -->
+  <aside class="affiliate-box" aria-labelledby="affiliate-heading">
+    <h2 id="affiliate-heading">おすすめ</h2>
+    <p class="pr-label">[PR]</p>
+    <ul class="affiliate-list" id="affiliate-list">
+      <!-- monetization.js で動的に生成、またはここに直接記述 -->
+    </ul>
+  </aside>
+
+  <!-- Pro案内 -->
+  <section class="pro-box" aria-labelledby="pro-heading">
+    <h2 id="pro-heading">Proプラン</h2>
+    <p>
+      買い切り¥480で、広告非表示・割り勘の履歴保存・複数グループの管理などが利用できる予定です（準備中）。
+    </p>
+    <button id="pro-button" type="button" class="btn btn-primary">Proを購入（準備中）</button>
+    <p class="dev-only">
+      <button id="dev-pro-toggle" type="button" class="btn btn-secondary">Proフラグを切替（開発用）</button>
+    </p>
+  </section>
+
+</main>
+
+<!-- TODO: AdSense 広告枠（コンテンツ下） -->
+<div class="ad-slot ad-slot--bottom" data-ad-position="bottom" aria-hidden="true">
+  <!-- <ins class="adsbygoogle"
+       style="display:block"
+       data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
+       data-ad-slot="XXXXXXXXXX"
+       data-ad-format="auto"
+       data-full-width-responsive="true"></ins>
+  <script>(adsbygoogle = window.adsbygoogle || []).push({});</script> -->
+  <p class="ad-placeholder">広告スペース（準備中）</p>
+</div>
+
+<footer class="site-footer">
+  <div class="container footer-inner">
+    <nav aria-label="フッターリンク">
+      <a href="privacy.html">プライバシーポリシー</a>
+      <a href="terms.html">利用規約</a>
+      <a href="operator.html">運営者情報</a>
+    </nav>
+    <p class="copyright">&copy; 2026 ツール工房</p>
+  </div>
+</footer>
+
+<script src="monetization.js" defer></script>
+<script src="app.js" defer></script>
+<script>
+  // PWA: Service Worker 登録（相対パスなのでサブパス公開でも scope が正しく効く）
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", function () {
+      navigator.serviceWorker.register("sw.js").catch(function () {});
+    });
+  }
+</script>
+</body>
+</html>
