@@ -2,7 +2,7 @@
    パーセント計算機 : app.js
    バニラJS / 外部依存なし
    - ダーク/ライト切替（localStorage保存）
-   - Proフラグ判定（広告非表示などの分岐の起点）
+   - お布施フラグ判定（分岐の起点）
    - 5モードのパーセント計算（①AのB% ②AはBの何% ③増減率 ④割引/割増 ⑤分数/小数変換）
    - 入力値はサーバーに送信・保存しない（表示設定のみ保存）
    ============================================ */
@@ -11,7 +11,7 @@
   "use strict";
 
   const STORAGE_KEY_THEME = "tf_theme"; // "light" | "dark"
-  const STORAGE_KEY_PRO = "tf_pro";     // "1" で Pro 有効（擬似フラグ）
+  const STORAGE_KEY_PRO = "tf_pro";     // "1" でお布施済みフラグ（擬似）
 
   /* ---------- テーマ切替 ---------- */
   function initTheme() {
@@ -49,7 +49,7 @@
     }
   }
 
-  /* ---------- Pro判定（広告非表示など） ---------- */
+  /* ---------- お布施フラグ判定 ---------- */
   function isPro() {
     return localStorage.getItem(STORAGE_KEY_PRO) === "1";
   }

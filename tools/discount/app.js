@@ -2,7 +2,7 @@
    割引・セール価格計算機 : app.js
    バニラJS / 外部依存なし
    - ダーク/ライト切替（localStorage保存）
-   - Proフラグ判定（広告非表示などの分岐の起点）
+   - お布施フラグ判定（分岐の起点）
    - ①割引後価格の計算（複数割引の重ね掛け、税込考慮）
    - ②割引率の逆算（元値→セール価格から%OFF・○割引を算出）
    - 入力値はサーバーに送信・保存しない（表示設定のみ保存）
@@ -12,7 +12,7 @@
   "use strict";
 
   const STORAGE_KEY_THEME = "tf_theme"; // "light" | "dark"
-  const STORAGE_KEY_PRO = "tf_pro";     // "1" で Pro 有効（擬似フラグ）
+  const STORAGE_KEY_PRO = "tf_pro";     // "1" でお布施済みフラグ（擬似）
 
   /* ---------- テーマ切替 ---------- */
   function initTheme() {
@@ -50,7 +50,7 @@
     }
   }
 
-  /* ---------- Pro判定（広告非表示など） ---------- */
+  /* ---------- お布施フラグ判定 ---------- */
   function isPro() {
     return localStorage.getItem(STORAGE_KEY_PRO) === "1";
   }

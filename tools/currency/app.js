@@ -2,7 +2,7 @@
    為替・通貨換算ツール : app.js
    バニラJS / 外部依存なし
    - ダーク/ライト切替（localStorage保存）
-   - Proフラグ判定（広告非表示などの分岐の起点）
+   - お布施フラグ判定（分岐の起点）
    - frankfurter.app（ECB）から為替レートを取得し、金額換算・レート表を表示
    - オフライン/取得失敗時はlocalStorageの最終取得レートにフォールバック
    ============================================ */
@@ -11,7 +11,7 @@
   "use strict";
 
   const STORAGE_KEY_THEME = "tf_theme"; // "light" | "dark"
-  const STORAGE_KEY_PRO = "tf_pro";     // "1" で Pro 有効（擬似フラグ）
+  const STORAGE_KEY_PRO = "tf_pro";     // "1" でお布施済みフラグ（擬似）
   const STORAGE_KEY_RATES = "tf_currency_rates_cache"; // 最終取得レートのキャッシュ
   const STORAGE_KEY_PAIR = "tf_currency_pair"; // 直前に選んだ通貨ペア
 
@@ -61,7 +61,7 @@
     }
   }
 
-  /* ---------- Pro判定（広告非表示など） ---------- */
+  /* ---------- お布施フラグ判定 ---------- */
   function isPro() {
     return localStorage.getItem(STORAGE_KEY_PRO) === "1";
   }

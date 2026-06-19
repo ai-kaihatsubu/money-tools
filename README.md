@@ -32,7 +32,7 @@ category-suite-template/
 1. このディレクトリ全体を `products/<カテゴリ名>-suite/` 等にコピーする。
 2. `tools/` 配下に、対象カテゴリの各ツール（既存products配下のツール一式）をコピーする。
 3. `config.js` を編集し、`SUITE_CONFIG` を実際の値に書き換える。
-   - `brand`: カテゴリのブランド名（例: "お金ツール工房"）
+   - `brand`: カテゴリのブランド名（例: "お金ツール置き場"）
    - `desc`: カテゴリの説明文
    - `tabs`: 各ツールの `{ label, path }` をタブ数に応じて列挙
      （`path` は `./tools/<slug>/index.html` 形式）
@@ -42,9 +42,9 @@ category-suite-template/
 
 | プレースホルダ | 置換内容 | 出現ファイル |
 | --- | --- | --- |
-| `お金の計算ツール` | ブランド名（例: お金ツール工房） | index.html, config.js, manifest.webmanifest, privacy/terms/operator.html |
+| `お金の計算ツール` | ブランド名（例: お金ツール置き場） | index.html, config.js, manifest.webmanifest, privacy/terms/operator.html |
 | `消費税・割引・パーセント・割り勘・為替をまとめて計算できる無料ツール` | 説明文（meta description等） | index.html, config.js, manifest.webmanifest |
-| `お金の計算ツール｜ツール工房` | ページタイトル（`<title>` / OGP） | index.html |
+| `お金の計算ツール｜ツール置き場` | ページタイトル（`<title>` / OGP） | index.html |
 | `https://ai-kaihatsubu.github.io/money-tools/` | 公開URL（末尾`/`付き。例: `https://example.github.io/money-suite/`） | index.html, privacy/terms/operator.html |
 | `money-tools-v1` | Service Workerキャッシュ名（例: `money-suite-v1`） | sw.js |
 | `__LABEL1__`〜 | 各タブのラベル | config.js（タブ数に応じて増減可） |
@@ -54,7 +54,7 @@ category-suite-template/
 
 ```bash
 cd products/money-suite
-sed -i 's/お金の計算ツール/お金ツール工房/g; s|https://ai-kaihatsubu.github.io/money-tools/|https://example.github.io/money-suite/|g' \
+sed -i 's/お金の計算ツール/お金ツール置き場/g; s|https://ai-kaihatsubu.github.io/money-tools/|https://example.github.io/money-suite/|g' \
   index.html config.js manifest.webmanifest privacy.html terms.html operator.html
 ```
 
